@@ -95,8 +95,7 @@ export async function addCommand(args: string[]): Promise<void> {
   // Check if skill already exists locally
   const localPath = getLocalSkillPath(finalName);
   if (await dirExists(localPath)) {
-    console.error(`Error: Skill '${finalName}' already exists at ${localPath}`);
-    console.error("Use --rename to choose a different name.");
+    console.error(`Error: Skill '${finalName}' already exists. Use --rename to choose a different name.`);
     process.exit(1);
   }
 
@@ -111,7 +110,11 @@ export async function addCommand(args: string[]): Promise<void> {
     process.exit(1);
   }
 
-  console.log(`Added skill: ${skillRef.skillName} → ${localPath}`);
+  if (targetName) {
+    console.log(`Added skill: @${skillRef.skillName} as @${finalName}`);
+  } else {
+    console.log(`Added skill: @${skillRef.skillName}`);
+  }
 }
 
 function printHelp(): void {

@@ -2,7 +2,7 @@
  * File system utilities
  */
 
-import { access, readdir, copyFile, mkdir, stat } from "fs/promises";
+import { access, readdir, copyFile, mkdir, stat, rm } from "fs/promises";
 import { join } from "path";
 
 /**
@@ -52,4 +52,11 @@ export async function copyDir(src: string, dest: string): Promise<void> {
       await copyFile(srcPath, destPath);
     }
   }
+}
+
+/**
+ * Recursively delete a directory
+ */
+export async function rmDir(path: string): Promise<void> {
+  await rm(path, { recursive: true, force: true });
 }

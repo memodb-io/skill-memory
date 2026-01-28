@@ -1,4 +1,9 @@
 import { remoteCommand } from "./commands/remote/index.js";
+import { listCommand } from "./commands/list.js";
+import { initCommand } from "./commands/init.js";
+import { deleteCommand } from "./commands/delete.js";
+import { copyCommand } from "./commands/copy.js";
+import { renameCommand } from "./commands/rename.js";
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -11,6 +16,26 @@ async function main(): Promise<void> {
 
     case "remote":
       await remoteCommand(args.slice(1));
+      break;
+
+    case "list":
+      await listCommand();
+      break;
+
+    case "init":
+      await initCommand(args.slice(1));
+      break;
+
+    case "delete":
+      await deleteCommand(args.slice(1));
+      break;
+
+    case "copy":
+      await copyCommand(args.slice(1));
+      break;
+
+    case "rename":
+      await renameCommand(args.slice(1));
       break;
 
     default:
@@ -29,6 +54,11 @@ Commands:
   ping              Check if the CLI is working
   remote list       List skills in a remote repository
   remote add        Add a skill from a remote repository
+  list              List locally installed skills
+  init              Create a new skill from template
+  delete            Remove a skill from local library
+  copy              Duplicate a skill with a new name
+  rename            Rename an existing skill
 
 Run 'skill-memory <command> --help' for more information.`);
 }
