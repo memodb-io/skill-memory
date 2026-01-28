@@ -25,8 +25,14 @@ skill-memory remote list github.com@anthropic/skills
 skill-memory remote add github.com@anthropic/skills@xlsx --rename my-xlsx
 ```
 
-Use local skills
+Add skills from local:
+```bash
+# download from github
+skill-memory remote list localhost@/home/user/my-skill
+skill-memory remote add localhost@/home/user/my-skill@xlsx --rename my-xlsx
+```
 
+Use skills in `skill-memory`
 ```bash
 skill-memory list
 skill-memory view @xlsx/SKILL.md
@@ -35,7 +41,7 @@ skill-memory download @xlsx/recalc.py ./
 skill-memory download @canvas-design/canvas-fonts ./
 ```
 
-Edit local skills
+Edit skills in `skill-memory`
 
 ```bash
 skill-memory fork @xlsx my-xlsx

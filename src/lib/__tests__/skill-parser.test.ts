@@ -7,7 +7,8 @@ import { join } from "path";
 import { findSkillFiles, parseSkillFrontmatter, parseAllSkills } from "../skill-parser.js";
 
 // Use the actual skill-memory repo for testing
-const REPO_ROOT = join(import.meta.dirname, "../../../..");
+// Go up 3 levels: __tests__ -> lib -> src -> repo root
+const REPO_ROOT = join(import.meta.dirname, "../../..");
 
 describe("findSkillFiles", () => {
   it("should find SKILL.md files in the repository", async () => {
