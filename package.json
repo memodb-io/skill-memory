@@ -1,0 +1,38 @@
+{
+  "name": "skill-memory",
+  "version": "0.0.1",
+  "description": "A global local store for your agent skills",
+  "type": "module",
+  "bin": {
+    "skill-memory": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "cli",
+    "skills",
+    "agent",
+    "ai"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/memodb-io/skill-memory.git"
+  },
+  "homepage": "https://github.com/memodb-io/skill-memory#readme",
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3"
+  }
+}

@@ -1,0 +1,3 @@
+- Always plan a markdown at dev_plans/ before you code
+- A dev plan should at least contain `features`, `overall designs`, `implementation TODOS`, `impact files`, `new deps`, `test cases` sections
+- Remember to update the related dev plans after you finish your work.
