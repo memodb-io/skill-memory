@@ -12,7 +12,7 @@ skill-memory remote add github.com@anthropic/skills@xlsx --rename my-xlsx
 Add skills from local:
 
 ```bash
-# download from github
+# link from local disk
 skill-memory remote list localhost@/home/user/my-skill
 skill-memory remote add localhost@./my-skill@xlsx --rename my-xlsx
 ```
