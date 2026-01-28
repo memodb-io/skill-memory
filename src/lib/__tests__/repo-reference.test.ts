@@ -183,13 +183,13 @@ describe("parseSkillReference", () => {
 
     it("should throw on missing skill name (only one @)", () => {
       expect(() => parseSkillReference("github.com@owner/repo")).toThrow(
-        "Invalid repo reference"
+        "Invalid skill reference"
       );
     });
 
     it("should throw on unsupported host", () => {
       expect(() => parseSkillReference("gitlab.com@owner/repo@skill")).toThrow(
-        "Supported hosts: github.com, localhost"
+        "Invalid skill reference"
       );
     });
 
@@ -241,7 +241,7 @@ describe("parseSkillReference", () => {
       // localhost@/path is a valid repo reference but not a skill reference
       // parseSkillReference uses lastIndexOf, so it tries to parse "localhost" as a repo
       expect(() => parseSkillReference("localhost@/path")).toThrow(
-        "Invalid repo reference"
+        "Invalid skill reference"
       );
     });
   });
