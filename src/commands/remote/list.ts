@@ -72,7 +72,7 @@ export async function listCommand(args: string[]): Promise<void> {
 
   // Output as pretty-printed JSON
   const output = skills.map((skill) => ({
-    id: skill.fullRef,
+    skill: skill.fullRef,
     description: skill.description,
   }));
 
@@ -90,7 +90,6 @@ Arguments:
             - github.com@owner/repo      GitHub repository
             - localhost@/absolute/path   Local directory (absolute path)
             - localhost@./relative/path  Local directory (relative path)
-            - localhost@~/path           Local directory (home-relative path)
 
 Examples:
   # List skills from a GitHub repository
