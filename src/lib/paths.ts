@@ -46,9 +46,14 @@ function validatePathWithinBase(targetPath: string, baseDir: string): void {
 }
 
 /**
- * Get the skill-memory root directory
+ * Get the skill-memory root directory.
+ * Uses SKILL_MEMORY_HOME environment variable if set, otherwise falls back to ~/.skill-memory
  */
 export function getSkillMemoryDir(): string {
+  const envHome = process.env.SKILL_MEMORY_HOME;
+  if (envHome) {
+    return resolve(envHome);
+  }
   return join(homedir(), ".skill-memory");
 }
 

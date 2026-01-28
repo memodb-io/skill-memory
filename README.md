@@ -73,3 +73,14 @@ Edit skills in `skill-memory`
 skill-memory upsert better-recalc.py @my-xlsx/my_path/recalc.py -m "add multi-sheets support"
 ```
 
+
+
+
+
+## Configuration
+
+### Envs
+
+| Variable            | Description                                         | Default           |
+| ------------------- | --------------------------------------------------- | ----------------- |
+| `SKILL_MEMORY_HOME` | Custom storage location for skills and cached repos | `~/.skill-memory` |

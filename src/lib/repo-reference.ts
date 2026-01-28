@@ -157,7 +157,14 @@ export function parseSkillReference(ref: string): SkillReference {
   }
 
   // Parse the repo reference part
-  const repoRef = parseRepoReference(repoRefStr);
+  let repoRef: RepoReference;
+  try {
+    repoRef = parseRepoReference(repoRefStr);
+  } catch (_) {
+    throw new Error(
+      `Invalid skill reference: "${ref}". Expected format: github.com@owner/repo@skill_name or localhost@/path@skill_name`
+    );
+  }
 
   if (isLocalRef(repoRef)) {
     return { ...repoRef, skillName };
