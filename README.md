@@ -3,9 +3,11 @@
   <p>
     one skill to rule them all.
   </p>
-  <a href="https://github.com/memodb-io/skill-memory/actions/workflows/ci.yml"><img src="https://github.com/memodb-io/skill-memory/actions/workflows/ci.yml/badge.svg"></a>
-</br>
+  <p>
+    <a href="https://github.com/memodb-io/skill-memory/actions/workflows/ci.yml"><img src="https://github.com/memodb-io/skill-memory/actions/workflows/ci.yml/badge.svg"></a>
+  </p>
 </div>
+
 
 
 
