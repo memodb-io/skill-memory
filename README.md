@@ -14,17 +14,21 @@
 
 `skill-memory` is a local store for your agent skills.
 
-- It can download a public skill, and maintain a local version of it.
-- You can change, reuse and share skills to other agents.
-- It's a skill itself.
+- It can download public skills, and maintain a forked version of it.
+- You can edit, reuse and share many skills by only import one `skill-memory` skill.
+- Use it as an agent memory consists with skills
+
+
 
 ## Installation
 
-Download cli:
+Add `skill-memory` skill to your agent:
 
 ```bash
-npm install -g skill-memory
+npx skills add memodb-io/skill-memory
 ```
+
+and type `setup skill-memory` in your agent.
 
 
 
