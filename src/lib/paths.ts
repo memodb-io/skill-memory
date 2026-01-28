@@ -4,8 +4,8 @@
 
 import { homedir } from "os";
 import { join, normalize, resolve } from "path";
-import { mkdir } from "fs/promises";
-import type { RepoReference } from "../types.js";
+import { mkdir, stat, access, constants } from "fs/promises";
+import type { GithubRepoReference } from "../types.js";
 
 /**
  * Sanitize a path segment to prevent directory traversal attacks.
@@ -67,10 +67,10 @@ export function getSkillsDir(): string {
 }
 
 /**
- * Get the cache path for a specific repo.
+ * Get the cache path for a specific GitHub repo.
  * Sanitizes path segments to prevent directory traversal.
  */
-export function getRepoCachePath(ref: RepoReference): string {
+export function getRepoCachePath(ref: GithubRepoReference): string {
   const sanitizedHost = sanitizePathSegment(ref.host);
   const sanitizedOwner = sanitizePathSegment(ref.owner);
   const sanitizedRepo = sanitizePathSegment(ref.repo);
@@ -102,4 +102,39 @@ export function getLocalSkillPath(name: string): string {
  */
 export async function ensureDir(path: string): Promise<void> {
   await mkdir(path, { recursive: true });
+}
+
+/**
+ * Validate that a local path exists, is a directory, and is readable.
+ * Throws descriptive errors if validation fails.
+ */
+export async function validateLocalPath(localPath: string): Promise<void> {
+  try {
+    // Check if path is readable
+    await access(localPath, constants.R_OK);
+  } catch (error) {
+    const nodeError = error as NodeJS.ErrnoException;
+    if (nodeError.code === "ENOENT") {
+      throw new Error(`Path '${localPath}' not found`);
+    }
+    if (nodeError.code === "EACCES") {
+      throw new Error(`Permission denied: cannot read '${localPath}'`);
+    }
+    throw new Error(`Cannot access path '${localPath}': ${nodeError.message}`);
+  }
+
+  // Check if it's a directory
+  try {
+    const stats = await stat(localPath);
+    if (!stats.isDirectory()) {
+      throw new Error(`Path '${localPath}' is not a directory`);
+    }
+  } catch (error) {
+    // Re-throw our own errors
+    if (error instanceof Error && error.message.includes("is not a directory")) {
+      throw error;
+    }
+    const nodeError = error as NodeJS.ErrnoException;
+    throw new Error(`Cannot stat path '${localPath}': ${nodeError.message}`);
+  }
 }

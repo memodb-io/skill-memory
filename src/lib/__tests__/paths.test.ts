@@ -2,15 +2,17 @@
  * Tests for paths.ts
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { homedir } from "os";
 import { join } from "path";
+import { mkdir, writeFile, rm } from "fs/promises";
 import {
   getSkillMemoryDir,
   getReposCacheDir,
   getSkillsDir,
   getRepoCachePath,
   getLocalSkillPath,
+  validateLocalPath,
 } from "../paths.js";
 
 describe("getSkillMemoryDir", () => {
@@ -113,5 +115,37 @@ describe("getLocalSkillPath", () => {
 
   it("should reject empty names after sanitization", () => {
     expect(() => getLocalSkillPath("..")).toThrow("Invalid path segment");
+  });
+});
+
+describe("validateLocalPath", () => {
+  const testDir = join(process.cwd(), ".test-validate-local-path");
+  const testFile = join(testDir, "test-file.txt");
+
+  beforeEach(async () => {
+    // Create test directory and file
+    await mkdir(testDir, { recursive: true });
+    await writeFile(testFile, "test content");
+  });
+
+  afterEach(async () => {
+    // Clean up test directory
+    await rm(testDir, { recursive: true, force: true });
+  });
+
+  it("should pass for existing directory", async () => {
+    await expect(validateLocalPath(testDir)).resolves.not.toThrow();
+  });
+
+  it("should throw for non-existent path", async () => {
+    await expect(validateLocalPath("/nonexistent/path/12345")).rejects.toThrow(
+      "not found"
+    );
+  });
+
+  it("should throw for file instead of directory", async () => {
+    await expect(validateLocalPath(testFile)).rejects.toThrow(
+      "is not a directory"
+    );
   });
 });

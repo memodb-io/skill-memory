@@ -17,6 +17,8 @@ npm install -g skill-memory
 
 ## Quick Start
 
+### Add Skills to `skill-memory`
+
 Add skills from Github:
 
 ```bash
@@ -29,14 +31,26 @@ Add skills from local:
 ```bash
 # download from github
 skill-memory remote list localhost@/home/user/my-skill
-skill-memory remote add localhost@/home/user/my-skill@xlsx --rename my-xlsx
+skill-memory remote add localhost@./my-skill@xlsx --rename my-xlsx
 ```
 
-Use skills in `skill-memory`
+
+
+### Skills in `skill-memory`
+
+Manage skills:
+
 ```bash
 skill-memory list
-skill-memory view @xlsx/SKILL.md
 skill-memory delete @xlsx
+skill-memory copy @xlsx my-xlsx # @xlsx and @my-xlsx
+skill-memory rename @xlsx my-xlsx # only @my-xlsx
+```
+
+Use skills
+
+```bash
+skill-memory view @xlsx/SKILL.md
 skill-memory download @xlsx/recalc.py ./
 skill-memory download @canvas-design/canvas-fonts ./
 ```
@@ -44,7 +58,6 @@ skill-memory download @canvas-design/canvas-fonts ./
 Edit skills in `skill-memory`
 
 ```bash
-skill-memory fork @xlsx my-xlsx
-skill-memory upsert better-recalc.py @xlsx/recalc.py -m "add multi-sheets support"
+skill-memory upsert better-recalc.py @my-xlsx/recalc.py -m "add multi-sheets support"
 ```
 

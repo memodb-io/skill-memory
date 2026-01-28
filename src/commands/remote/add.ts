@@ -1,14 +1,14 @@
 /**
- * remote add command - Add a skill from a remote repository
+ * remote add command - Add a skill from a remote repository or local directory
  */
 
 import { dirname } from "path";
-import { parseSkillReference, buildCloneUrl } from "../../lib/repo-reference.js";
-import { getRepoCachePath, getLocalSkillPath, ensureDir, getSkillsDir } from "../../lib/paths.js";
+import { parseSkillReference, buildCloneUrl, isLocalSkillRef, isGithubSkillRef } from "../../lib/repo-reference.js";
+import { getRepoCachePath, getLocalSkillPath, ensureDir, getSkillsDir, validateLocalPath } from "../../lib/paths.js";
 import { isGitInstalled, ensureRepo } from "../../lib/git.js";
 import { findSkillByName } from "../../lib/skill-finder.js";
 import { dirExists, copyDir } from "../../lib/fs-utils.js";
-import type { SkillReference } from "../../types.js";
+import type { SkillReference, GithubRepoReference, LocalRepoReference } from "../../types.js";
 
 export async function addCommand(args: string[]): Promise<void> {
   const skillArg = args[0];
@@ -29,12 +29,6 @@ export async function addCommand(args: string[]): Promise<void> {
     }
   }
 
-  // Check if git is installed
-  if (!(await isGitInstalled())) {
-    console.error("Error: Git is not installed. Please install git and try again.");
-    process.exit(1);
-  }
-
   // Parse skill reference
   let skillRef: SkillReference;
   try {
@@ -44,27 +38,54 @@ export async function addCommand(args: string[]): Promise<void> {
     process.exit(1);
   }
 
-  // Get cache path and ensure directory exists
-  const repoRef = { host: skillRef.host, owner: skillRef.owner, repo: skillRef.repo };
-  const cachePath = getRepoCachePath(repoRef);
-  await ensureDir(dirname(cachePath));
+  let sourcePath: string;
+  let repoRef: GithubRepoReference | LocalRepoReference;
 
-  // Clone or pull the repository
-  const cloneUrl = buildCloneUrl(repoRef);
-  console.log(`Fetching ${repoRef.host}@${repoRef.owner}/${repoRef.repo}...`);
+  if (isLocalSkillRef(skillRef)) {
+    // Local path - validate it exists and is a directory
+    try {
+      await validateLocalPath(skillRef.path);
+    } catch (error) {
+      console.error(`Error: ${error instanceof Error ? error.message : error}`);
+      process.exit(1);
+    }
+    sourcePath = skillRef.path;
+    repoRef = { host: skillRef.host, path: skillRef.path };
+    console.log(`Scanning ${skillRef.host}@${skillRef.path}...`);
+  } else if (isGithubSkillRef(skillRef)) {
+    // GitHub - check git is installed and clone/pull
+    if (!(await isGitInstalled())) {
+      console.error("Error: Git is not installed. Please install git and try again.");
+      process.exit(1);
+    }
 
-  try {
-    await ensureRepo(cloneUrl, cachePath);
-  } catch (error) {
-    console.error(`Error: ${error instanceof Error ? error.message : error}`);
+    // Get cache path and ensure directory exists
+    repoRef = { host: skillRef.host, owner: skillRef.owner, repo: skillRef.repo };
+    const cachePath = getRepoCachePath(repoRef);
+    await ensureDir(dirname(cachePath));
+
+    // Clone or pull the repository
+    const cloneUrl = buildCloneUrl(repoRef);
+    console.log(`Fetching ${repoRef.host}@${repoRef.owner}/${repoRef.repo}...`);
+
+    try {
+      await ensureRepo(cloneUrl, cachePath);
+    } catch (error) {
+      console.error(`Error: ${error instanceof Error ? error.message : error}`);
+      process.exit(1);
+    }
+
+    sourcePath = cachePath;
+  } else {
+    console.error("Error: Unknown reference type.");
     process.exit(1);
   }
 
   // Find the skill in the repository
-  const skillPath = await findSkillByName(cachePath, skillRef.skillName, repoRef);
+  const skillPath = await findSkillByName(sourcePath, skillRef.skillName, repoRef);
 
   if (!skillPath) {
-    console.error(`Error: Skill '${skillRef.skillName}' not found in repository.`);
+    console.error(`Error: Skill '${skillRef.skillName}' not found.`);
     process.exit(1);
   }
 
@@ -96,15 +117,25 @@ export async function addCommand(args: string[]): Promise<void> {
 function printHelp(): void {
   console.log(`Usage: skill-memory remote add <skill> [options]
 
-Add a skill from a remote repository to your local skill library.
+Add a skill from a remote repository or local directory to your local skill library.
 
 Arguments:
-  <skill>    Skill reference in format: github.com@owner/repo@skill_name
+  <skill>    Skill reference in one of these formats:
+             - github.com@owner/repo@skill_name        GitHub skill
+             - localhost@/absolute/path@skill_name     Local skill (absolute path)
+             - localhost@./relative/path@skill_name    Local skill (relative path)
+             - localhost@~/path@skill_name             Local skill (home-relative path)
 
 Options:
   --rename <name>    Use a custom local name for the skill
 
 Examples:
+  # Add a skill from GitHub
   skill-memory remote add github.com@anthropics/skills@xlsx
-  skill-memory remote add github.com@anthropics/skills@xlsx --rename my-xlsx`);
+  skill-memory remote add github.com@anthropics/skills@xlsx --rename my-xlsx
+
+  # Add a skill from a local directory
+  skill-memory remote add localhost@/home/user/my-skills@xlsx
+  skill-memory remote add localhost@./my-skills@xlsx --rename my-xlsx
+  skill-memory remote add localhost@~/skills@pdf`);
 }

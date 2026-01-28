@@ -49,7 +49,7 @@ describe("Integration: Git Operations", () => {
 
 });
 
-describe("Integration: Skill Discovery (local repo)", () => {
+describe("Integration: Skill Discovery (local repo with GitHub ref)", () => {
   // Use the local repo instead of cloned one to avoid dependency on remote state
   const localRepoPath = join(import.meta.dirname, "../../../..");
 
@@ -74,6 +74,41 @@ describe("Integration: Skill Discovery (local repo)", () => {
 
   it("should return null for non-existent skill", async () => {
     const skillPath = await findSkillByName(localRepoPath, "non-existent-skill", TEST_REPO_REF);
+
+    expect(skillPath).toBeNull();
+  });
+});
+
+describe("Integration: Localhost references", () => {
+  // Use the local repo with a localhost reference
+  const localRepoPath = join(import.meta.dirname, "../../../..");
+  const localRepoRef = { host: "localhost" as const, path: localRepoPath };
+
+  it("should list skills using localhost reference", async () => {
+    const skills = await parseAllSkills(localRepoPath, localRepoRef);
+
+    expect(skills.length).toBeGreaterThan(0);
+
+    // Should find the skill-memory skill
+    const skillMemory = skills.find((s) => s.name === "skill-memory");
+    expect(skillMemory).toBeDefined();
+    expect(skillMemory?.description).toBeDefined();
+
+    // Verify fullRef uses localhost format
+    expect(skillMemory?.fullRef).toMatch(/^localhost@/);
+    expect(skillMemory?.fullRef).toContain("@skill-memory");
+  });
+
+  it("should find a skill by name using localhost reference", async () => {
+    const skillPath = await findSkillByName(localRepoPath, "skill-memory", localRepoRef);
+
+    expect(skillPath).not.toBeNull();
+    expect(skillPath).toContain("skills");
+    expect(skillPath).toContain("skill-memory");
+  });
+
+  it("should return null for non-existent skill with localhost reference", async () => {
+    const skillPath = await findSkillByName(localRepoPath, "non-existent-skill", localRepoRef);
 
     expect(skillPath).toBeNull();
   });
