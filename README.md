@@ -17,27 +17,28 @@ npm install -g skill-memory
 
 ## Quick Start
 
-Add skills from remote to local:
+Add skills from Github:
 
 ```bash
 # download from github
-npx skill-memory remote list github.com@anthropic/skills
-npx skill-memory remote add github.com@anthropic/skills@xlsx --rename my-xlsx
+skill-memory remote list github.com@anthropic/skills
+skill-memory remote add github.com@anthropic/skills@xlsx --rename my-xlsx
 ```
 
 Use local skills
 
 ```bash
-npx skill-memory list
-npx skill-memory view 
-npx skill-memory download @xlsx/recalc.py ./
-npx skill-memory download @canvas-design/canvas-fonts ./
+skill-memory list
+skill-memory view @xlsx/SKILL.md
+skill-memory delete @xlsx
+skill-memory download @xlsx/recalc.py ./
+skill-memory download @canvas-design/canvas-fonts ./
 ```
 
 Edit local skills
 
 ```bash
-npx skill-memory fork @xlsx my-xlsx
-npx skill-memory upsert better-recalc.py @xlsx/recalc.py -m "add multi-sheets support"
+skill-memory fork @xlsx my-xlsx
+skill-memory upsert better-recalc.py @xlsx/recalc.py -m "add multi-sheets support"
 ```
 

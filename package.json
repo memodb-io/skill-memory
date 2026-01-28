@@ -12,6 +12,8 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
@@ -30,9 +32,13 @@
   "engines": {
     "node": ">=18"
   },
+  "dependencies": {
+    "yaml": "^2.3.4"
+  },
   "devDependencies": {
     "@types/node": "^20.11.0",
     "tsup": "^8.0.1",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^4.0.18"
   }
 }
