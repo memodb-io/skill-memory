@@ -151,6 +151,21 @@ export async function gitAdd(dir: string, paths: string[] = []): Promise<void> {
 }
 
 /**
+ * Configure a default git identity for the repository
+ * Used when git commit fails due to missing author identity
+ */
+async function configureDefaultGitIdentity(dir: string): Promise<void> {
+  await execFileAsync("git", ["config", "user.email", "bot@skillmemory.io"], {
+    cwd: dir,
+    timeout: LOCAL_GIT_TIMEOUT_MS,
+  });
+  await execFileAsync("git", ["config", "user.name", "skill-memory"], {
+    cwd: dir,
+    timeout: LOCAL_GIT_TIMEOUT_MS,
+  });
+}
+
+/**
  * Commit staged changes
  * @param dir - Repository directory
  * @param message - Commit message
@@ -179,6 +194,22 @@ export async function gitCommit(dir: string, message: string): Promise<boolean> 
     ) {
       return false;
     }
+
+    // If author identity is unknown, configure default and retry
+    if (fullOutput.includes("Author identity unknown") || fullOutput.includes("empty ident name")) {
+      await configureDefaultGitIdentity(dir);
+      // Retry commit with configured identity
+      try {
+        await execFileAsync("git", ["commit", "-m", message], {
+          cwd: dir,
+          timeout: LOCAL_GIT_TIMEOUT_MS,
+        });
+        return true;
+      } catch (retryError) {
+        throw retryError;
+      }
+    }
+
     throw error;
   }
 }
