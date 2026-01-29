@@ -65,7 +65,14 @@ In your agent, enter those:
 - `update web design skill in memory that I only want blue theme`
 - `summarize your learnings and update the skills in memory`
 - `create a skill in memory about my taste on software development: always write a dev plan first`
-- ...
+
+View your skill-memory commits:
+
+```bash
+skill-memory history
+```
+
+
 
 
 
