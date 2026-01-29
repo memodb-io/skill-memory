@@ -4,6 +4,8 @@ import { initCommand } from "./commands/init.js";
 import { deleteCommand } from "./commands/delete.js";
 import { copyCommand } from "./commands/copy.js";
 import { renameCommand } from "./commands/rename.js";
+import { viewCommand } from "./commands/view.js";
+import { downloadCommand } from "./commands/download.js";
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -38,6 +40,14 @@ async function main(): Promise<void> {
       await renameCommand(args.slice(1));
       break;
 
+    case "view":
+      await viewCommand(args.slice(1));
+      break;
+
+    case "download":
+      await downloadCommand(args.slice(1));
+      break;
+
     default:
       printHelp();
       break;
@@ -59,6 +69,8 @@ Commands:
   delete            Remove a skill from local library
   copy              Duplicate a skill with a new name
   rename            Rename an existing skill
+  view              View a file from a local skill
+  download          Download a file/folder from a skill
 
 Run 'skill-memory <command> --help' for more information.`);
 }
