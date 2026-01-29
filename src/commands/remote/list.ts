@@ -36,7 +36,6 @@ export async function listCommand(args: string[]): Promise<void> {
       process.exit(1);
     }
     sourcePath = repoRef.path;
-    console.log(`Scanning ${repoRef.host}@${repoRef.path}...`);
   } else {
     // GitHub - check git is installed and clone/pull
     if (!(await isGitInstalled())) {
@@ -50,7 +49,6 @@ export async function listCommand(args: string[]): Promise<void> {
 
     // Clone or pull the repository
     const cloneUrl = buildCloneUrl(repoRef);
-    console.log(`Fetching ${repoRef.host}@${repoRef.owner}/${repoRef.repo}...`);
 
     try {
       await ensureRepo(cloneUrl, cachePath);
@@ -65,19 +63,13 @@ export async function listCommand(args: string[]): Promise<void> {
   // Find and parse all skills
   const skills = await parseAllSkills(sourcePath, repoRef);
 
-  if (skills.length === 0) {
-    console.log("\nNo skills found in this repository.");
-    return;
-  }
-
-  // Output as pretty-printed JSON
+  // Output as JSON only
   const output = skills.map((skill) => ({
     skill: skill.fullRef,
     description: skill.description,
   }));
 
   console.log(JSON.stringify(output, null, 2));
-  console.log(`\n${skills.length} skill${skills.length === 1 ? "" : "s"} found`);
 }
 
 function printHelp(): void {
