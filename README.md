@@ -11,12 +11,11 @@
 
 
 
+`skill-memory` is a store for your agent skills, using `git`:
 
-`skill-memory` is a local store for your agent skills.
-
-- It can download public skills, and maintain a forked version of it.
+- It can download public skills, and maintain forked versions of them.
 - You can edit, reuse and share many skills by only import one `skill-memory` skill.
-- Use it as an agent memory consists with skills
+- Use it as an agent memory consists with skills, versioning controlled by `git`
 
 
 
@@ -34,7 +33,10 @@ and type `setup skill-memory` in your agent.
 
 ## Quick Start
 
-Read [SKILL.md](./skills/skill-memory/SKILL.md).
+In your agent, enter those:
+
+- `add skills in vercel-labs/agent-skills to memory`
+- `tell me about web design skill in your memory`
 
 
 

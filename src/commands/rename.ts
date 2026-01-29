@@ -6,6 +6,7 @@ import { rename } from "fs/promises";
 import { getLocalSkillPath } from "../lib/paths.js";
 import { dirExists } from "../lib/fs-utils.js";
 import { parseLocalSkillName } from "../lib/local-skill-ref.js";
+import { ensureGitReady, commitSkillChange } from "../lib/skill-git.js";
 
 export async function renameCommand(args: string[]): Promise<void> {
   if (args.length < 2) {
@@ -56,8 +57,18 @@ export async function renameCommand(args: string[]): Promise<void> {
     process.exit(1);
   }
 
+  // Ensure git repo is ready BEFORE renaming skill (for proper migration)
+  await ensureGitReady();
+
   // Rename the skill directory
   await rename(sourcePath, targetPath);
 
   console.log(`Renamed skill: @${sourceName} → @${targetName}`);
+
+  // Commit the rename
+  await commitSkillChange({
+    type: "refactor",
+    scope: targetName,
+    description: `rename skill from ${sourceName}`,
+  });
 }

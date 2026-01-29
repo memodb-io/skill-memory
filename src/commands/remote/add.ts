@@ -8,6 +8,7 @@ import { getRepoCachePath, getLocalSkillPath, ensureDir, getSkillsDir, validateL
 import { isGitInstalled, ensureRepo } from "../../lib/git.js";
 import { findSkillByName } from "../../lib/skill-finder.js";
 import { dirExists, copyDir } from "../../lib/fs-utils.js";
+import { ensureGitReady, commitSkillChange } from "../../lib/skill-git.js";
 import type { SkillReference, GithubRepoReference, LocalRepoReference } from "../../types.js";
 
 export async function addCommand(args: string[]): Promise<void> {
@@ -102,6 +103,9 @@ export async function addCommand(args: string[]): Promise<void> {
   // Ensure skills directory exists
   await ensureDir(getSkillsDir());
 
+  // Ensure git repo is ready BEFORE copying skill (for proper migration)
+  await ensureGitReady();
+
   // Copy skill to local skills directory
   try {
     await copyDir(skillPath, localPath);
@@ -115,6 +119,23 @@ export async function addCommand(args: string[]): Promise<void> {
   } else {
     console.log(`Added skill: @${skillRef.skillName}`);
   }
+
+  // Build source description for commit message
+  let sourceDesc: string;
+  if (isGithubSkillRef(skillRef)) {
+    sourceDesc = `${skillRef.host}/${skillRef.owner}/${skillRef.repo}`;
+  } else if (isLocalSkillRef(skillRef)) {
+    sourceDesc = skillRef.path;
+  } else {
+    sourceDesc = "remote";
+  }
+
+  // Commit the added skill
+  await commitSkillChange({
+    type: "feat",
+    scope: finalName,
+    description: `add skill from ${sourceDesc}`,
+  });
 }
 
 function printHelp(): void {

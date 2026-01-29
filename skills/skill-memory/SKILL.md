@@ -1,6 +1,6 @@
 ---
 name: skill-memory
-description: Use skill-memory to download, view and edit agent skills in memory. TRIGGER by (download/list/view/edit/use skill in memory, user ask you to reflect/save skills in memory)
+description: Use skill-memory to download, view and edit agent skills in memory. TRIGGER by 'skill', 'memory', 'learn'.
 ---
 
 ## Setup
@@ -8,4 +8,4 @@ description: Use skill-memory to download, view and edit agent skills in memory.
 
 ## Navigation
 - [Available commands](./available-commands.md)
-- [How to reflect yourself and save skills](./memory-management.md)
+- [How to learn skills](./learn-skills.md)

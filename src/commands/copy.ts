@@ -5,6 +5,7 @@
 import { getLocalSkillPath } from "../lib/paths.js";
 import { dirExists, copyDir } from "../lib/fs-utils.js";
 import { parseLocalSkillName } from "../lib/local-skill-ref.js";
+import { ensureGitReady, commitSkillChange } from "../lib/skill-git.js";
 
 export async function copyCommand(args: string[]): Promise<void> {
   if (args.length < 2) {
@@ -55,8 +56,18 @@ export async function copyCommand(args: string[]): Promise<void> {
     process.exit(1);
   }
 
+  // Ensure git repo is ready BEFORE copying skill (for proper migration)
+  await ensureGitReady();
+
   // Copy the skill directory
   await copyDir(sourcePath, targetPath);
 
   console.log(`Copied skill: @${sourceName} → @${targetName}`);
+
+  // Commit the copy
+  await commitSkillChange({
+    type: "feat",
+    scope: targetName,
+    description: `copy skill from ${sourceName}`,
+  });
 }

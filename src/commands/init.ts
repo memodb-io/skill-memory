@@ -7,6 +7,7 @@ import { getSkillsDir, getLocalSkillPath, ensureDir } from "../lib/paths.js";
 import { dirExists } from "../lib/fs-utils.js";
 import { parseLocalSkillName } from "../lib/local-skill-ref.js";
 import { generateSkillTemplate } from "../lib/templates.js";
+import { ensureGitReady, commitSkillChange } from "../lib/skill-git.js";
 import { join } from "path";
 
 export async function initCommand(args: string[]): Promise<void> {
@@ -39,6 +40,9 @@ export async function initCommand(args: string[]): Promise<void> {
   // Ensure skills directory exists
   await ensureDir(getSkillsDir());
 
+  // Ensure git repo is ready BEFORE creating skill (for proper migration)
+  await ensureGitReady();
+
   // Create skill directory
   await mkdir(skillPath, { recursive: true });
 
@@ -47,4 +51,11 @@ export async function initCommand(args: string[]): Promise<void> {
   await writeFile(join(skillPath, "SKILL.md"), template, "utf-8");
 
   console.log(`Created skill: @${name}`);
+
+  // Commit the new skill
+  await commitSkillChange({
+    type: "feat",
+    scope: name,
+    description: "initialize new skill",
+  });
 }

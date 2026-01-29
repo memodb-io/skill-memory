@@ -5,6 +5,7 @@
 import { getLocalSkillPath } from "../lib/paths.js";
 import { dirExists, rmDir } from "../lib/fs-utils.js";
 import { parseLocalSkillName } from "../lib/local-skill-ref.js";
+import { ensureGitReady, commitSkillChange } from "../lib/skill-git.js";
 
 export async function deleteCommand(args: string[]): Promise<void> {
   if (args.length === 0) {
@@ -33,8 +34,18 @@ export async function deleteCommand(args: string[]): Promise<void> {
     process.exit(1);
   }
 
+  // Ensure git repo is ready BEFORE deleting skill (for proper migration)
+  await ensureGitReady();
+
   // Delete the skill directory
   await rmDir(skillPath);
 
   console.log(`Deleted skill: @${name}`);
+
+  // Commit the deletion
+  await commitSkillChange({
+    type: "chore",
+    scope: name,
+    description: "delete skill",
+  });
 }
