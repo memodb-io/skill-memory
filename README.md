@@ -14,8 +14,33 @@
 `skill-memory` is a store for your agent skills, using `git`:
 
 - It can download public skills, and maintain forked versions of them.
-- You can edit, reuse and share many skills by only import one `skill-memory` skill.
-- Use it as an agent memory consists with skills, versioning controlled by `git`
+- You can edit, reuse and share many skills by importing only one `skill-memory` skill.
+- Use it as an agent memory consisting of skills, versioning controlled by `git`
+
+```mermaid
+flowchart LR
+    GH("🌐 GitHub")
+    LC("📁 Local")
+    SM[("🧠 skill-memory")]
+    V("👁️ view")
+    E("✏️ edit")
+    D("📥 download")
+    A("🤖 AI Agent")
+
+    GH & LC -->|add| SM
+    SM --> V & D
+    V & D -.-> A
+    A -.->|learn| E
+    E -->|update| SM
+
+    style SM fill:#a78bfa,stroke:#7c3aed,stroke-width:2px,color:#fff
+    style A fill:#38bdf8,stroke:#0284c7,stroke-width:2px,color:#fff
+    style GH fill:#f472b6,stroke:#db2777,color:#fff
+    style LC fill:#f472b6,stroke:#db2777,color:#fff
+    style V fill:#4ade80,stroke:#16a34a,color:#fff
+    style E fill:#4ade80,stroke:#16a34a,color:#fff
+    style D fill:#4ade80,stroke:#16a34a,color:#fff
+```
 
 
 

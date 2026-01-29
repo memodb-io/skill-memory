@@ -1,7 +1,7 @@
 {
   "name": "skill-memory",
-  "version": "0.0.1",
-  "description": "A global local store for your agent skills",
+  "version": "0.0.2",
+  "description": "A self-learning store for your agent skills",
   "type": "module",
   "bin": {
     "skill-memory": "./dist/index.js"

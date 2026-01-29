@@ -20,7 +20,7 @@ skill-memory remote add localhost@./my-skill@xlsx --rename my-xlsx
 #### Version control
 ```bash
 skill-memory undo # undo the last command
-skill-memory history
+skill-memory history # view command history
 ```
 #### Manage skills
 ```bash
@@ -47,10 +47,12 @@ skill-memory delete @my-xlsx/my_path/recalc.py # delete a file from a skill
 
 
 
-## Best Practices
+## Command Best Practices
 
 Skills are modular, self-contained packages that extend Agent's capabilities by providing specialized knowledge, workflows, and tools. Think of them as "onboarding guides" for specific domains or tasks — they transform Agent from a general-purpose agent into a specialized agent equipped with procedural knowledge that no model can fully possess.
 
 - always use `skill-memory list` to list all your skills in memory first.
 - always use `skill-memory view` to view `SKILL.md` first to understand a skill and its capabilities.
 - for executable/binary files, use `skill-memory download` to download it to a local path and use them.
+- when create a new skill, upsert your SKILL.md to it right after you run `skill-memory init`
+- when update a file of the skill, the correct way is to download it to a tmp path, use tools to edit it, then upsert them back with proper `-m` message.

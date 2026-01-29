@@ -7,5 +7,5 @@ description: Use skill-memory to download, view and edit agent skills in memory.
 - assume you have `skill-memory` cli, if not, run `npm install -g skill-memory`
 
 ## Navigation
-- [Available commands](./available-commands.md)
-- [How to learn skills](./learn-skills.md)
+- View all [available commands](./available-commands.md) and learn how to use `skill-memory`.
+- If user asks you to learn experiences/skills, read [How to learn skills](./learn-skills.md) of the correct way to create or update skills in memory.
