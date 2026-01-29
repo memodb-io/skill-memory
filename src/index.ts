@@ -8,6 +8,7 @@ import { viewCommand } from "./commands/view.js";
 import { downloadCommand } from "./commands/download.js";
 import { upsertCommand } from "./commands/upsert.js";
 import { undoCommand } from "./commands/undo.js";
+import { historyCommand } from "./commands/history.js";
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -58,6 +59,10 @@ async function main(): Promise<void> {
       await undoCommand();
       break;
 
+    case "history":
+      await historyCommand(args.slice(1));
+      break;
+
     default:
       printHelp();
       break;
@@ -83,6 +88,7 @@ Commands:
   download          Download a file/folder from a skill
   upsert            Upload a file to a skill
   undo              Undo the last skill-memory operation
+  history           View skill-memory operation history
 
 Run 'skill-memory <command> --help' for more information.`);
 }

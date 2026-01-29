@@ -285,6 +285,66 @@ export async function getLastCommitMessage(dir: string): Promise<string | null> 
 }
 
 /**
+ * Commit history entry
+ */
+export interface GitHistoryEntry {
+  date: string; // Formatted date string
+  message: string;
+}
+
+/**
+ * Get git commit history
+ * @param dir - Repository directory
+ * @param offset - Number of commits to skip (default 0)
+ * @param limit - Maximum number of commits to return (default 20)
+ * @returns Array of commit entries with date and message
+ */
+export async function getGitHistory(
+  dir: string,
+  offset: number = 0,
+  limit: number = 20
+): Promise<GitHistoryEntry[]> {
+  try {
+    const { stdout } = await execFileAsync(
+      "git",
+      ["log", `--skip=${offset}`, `-n`, `${limit}`, "--format=%aI|%s"],
+      {
+        cwd: dir,
+        timeout: LOCAL_GIT_TIMEOUT_MS,
+      }
+    );
+
+    if (!stdout.trim()) {
+      return [];
+    }
+
+    return stdout
+      .trim()
+      .split("\n")
+      .map((line) => {
+        const [isoDate, ...messageParts] = line.split("|");
+        const date = new Date(isoDate);
+        const formattedDate = date
+          .toLocaleString("sv-SE", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          })
+          .replace(",", "");
+        return {
+          date: formattedDate,
+          message: messageParts.join("|"),
+        };
+      });
+  } catch {
+    return [];
+  }
+}
+
+/**
  * Reset repository to a specific ref with --hard
  * @param dir - Repository directory
  * @param ref - Git ref to reset to (e.g., "HEAD~1")
