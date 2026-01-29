@@ -6,6 +6,8 @@ import { copyCommand } from "./commands/copy.js";
 import { renameCommand } from "./commands/rename.js";
 import { viewCommand } from "./commands/view.js";
 import { downloadCommand } from "./commands/download.js";
+import { upsertCommand } from "./commands/upsert.js";
+import { undoCommand } from "./commands/undo.js";
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -48,6 +50,14 @@ async function main(): Promise<void> {
       await downloadCommand(args.slice(1));
       break;
 
+    case "upsert":
+      await upsertCommand(args.slice(1));
+      break;
+
+    case "undo":
+      await undoCommand();
+      break;
+
     default:
       printHelp();
       break;
@@ -71,6 +81,8 @@ Commands:
   rename            Rename an existing skill
   view              View a file from a local skill
   download          Download a file/folder from a skill
+  upsert            Upload a file to a skill
+  undo              Undo the last skill-memory operation
 
 Run 'skill-memory <command> --help' for more information.`);
 }

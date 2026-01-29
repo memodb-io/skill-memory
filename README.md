@@ -37,6 +37,10 @@ In your agent, enter those:
 
 - `add skills in vercel-labs/agent-skills to memory`
 - `tell me about web design skill in your memory`
+- `update web design skill in memory that I only want blue theme`
+- `summarize your learnings and update the skills in memory`
+- `create a skill in memory about my taste on software development: always write a dev plan first`
+- ...
 
 
 

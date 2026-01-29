@@ -16,6 +16,12 @@ skill-memory remote add localhost@./my-skill@xlsx --rename my-xlsx
 ```
 
 ### Skills in `skill-memory`
+
+#### Version control
+```bash
+skill-memory undo # undo the last command
+skill-memory history
+```
 #### Manage skills
 ```bash
 skill-memory list
@@ -36,6 +42,7 @@ skill-memory download @xlsx/ ./ # download entire skill
 #### Edit skills
 ```bash
 skill-memory upsert /tmp/better-recalc.py @my-xlsx/my_path/recalc.py -m "add multi-sheets support"
+skill-memory delete @my-xlsx/my_path/recalc.py # delete a file from a skill
 ```
 
 

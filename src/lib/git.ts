@@ -250,6 +250,53 @@ export interface EnsureGitRepoResult {
 }
 
 /**
+ * Get the number of commits in a repository
+ * @param dir - Repository directory
+ * @returns Number of commits
+ */
+export async function getCommitCount(dir: string): Promise<number> {
+  try {
+    const { stdout } = await execFileAsync("git", ["rev-list", "--count", "HEAD"], {
+      cwd: dir,
+      timeout: LOCAL_GIT_TIMEOUT_MS,
+    });
+    return parseInt(stdout.trim(), 10);
+  } catch {
+    // If HEAD doesn't exist (empty repo), return 0
+    return 0;
+  }
+}
+
+/**
+ * Get the last commit message
+ * @param dir - Repository directory
+ * @returns Commit message or null if no commits
+ */
+export async function getLastCommitMessage(dir: string): Promise<string | null> {
+  try {
+    const { stdout } = await execFileAsync("git", ["log", "-1", "--format=%s"], {
+      cwd: dir,
+      timeout: LOCAL_GIT_TIMEOUT_MS,
+    });
+    return stdout.trim() || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Reset repository to a specific ref with --hard
+ * @param dir - Repository directory
+ * @param ref - Git ref to reset to (e.g., "HEAD~1")
+ */
+export async function gitResetHard(dir: string, ref: string): Promise<void> {
+  await execFileAsync("git", ["reset", "--hard", ref], {
+    cwd: dir,
+    timeout: LOCAL_GIT_TIMEOUT_MS,
+  });
+}
+
+/**
  * Ensure a git repository exists in the skills directory.
  * If the directory exists but has no .git, initialize git and commit existing skills.
  * @param skillsDir - Path to skills directory
