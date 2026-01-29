@@ -31,8 +31,22 @@ describe("generateSkillTemplate", () => {
   it("should include all expected sections", () => {
     const template = generateSkillTemplate("test-skill");
 
-    expect(template).toContain("## When to Use");
-    expect(template).toContain("## How to Use");
-    expect(template).toContain("Instructions for the AI assistant");
+    expect(template).toContain("## Quick Start");
+    expect(template).toContain("## Examples");
+    expect(template).toContain("## Additional Resources");
+  });
+
+  it("should include description guidance with WHAT and WHEN", () => {
+    const template = generateSkillTemplate("test-skill");
+
+    expect(template).toContain("[WHAT it does]");
+    expect(template).toContain("[WHEN to use it]");
+  });
+
+  it("should include best practice comments", () => {
+    const template = generateSkillTemplate("test-skill");
+
+    expect(template).toContain("Keep SKILL.md under 500 lines");
+    expect(template).toContain("progressive disclosure");
   });
 });

@@ -4,6 +4,7 @@
 
 /**
  * Generate a SKILL.md template for a new skill
+ * Based on best practices from create-skill skill
  */
 export function generateSkillTemplate(name: string): string {
   // Convert kebab-case to Title Case for display
@@ -14,21 +15,37 @@ export function generateSkillTemplate(name: string): string {
 
   return `---
 name: ${name}
-description: A brief description of what this skill does
+description: [WHAT it does] + [WHEN to use it]. Example: "Generate commit messages from git diffs. Use when the user asks for help writing commits or reviewing staged changes."
 ---
 
 # ${displayName}
 
-Instructions for the AI assistant on how to use this skill.
+<!-- Keep SKILL.md under 500 lines. Use progressive disclosure for detailed content. -->
 
-## When to Use
+## Quick Start
 
-- Use case 1
-- Use case 2
+<!-- Essential instructions go here. Be concise - the agent is already smart. -->
 
-## How to Use
+1. First step
+2. Second step
+3. Third step
 
-1. Step one
-2. Step two
+## Examples
+
+<!-- Concrete examples help the agent understand expected output format. -->
+
+**Example 1:**
+Input: [describe input]
+Output:
+\`\`\`
+[expected output]
+\`\`\`
+
+## Additional Resources
+
+<!-- Link to separate files for detailed documentation (keep references one level deep). -->
+
+- For detailed reference, see [reference.md](reference.md)
+- For more examples, see [examples.md](examples.md)
 `;
 }
