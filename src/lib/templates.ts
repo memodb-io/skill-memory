@@ -15,7 +15,7 @@ export function generateSkillTemplate(name: string): string {
 
   return `---
 name: ${name}
-description: [WHAT it does] + [WHEN to use it]. Example: "Generate commit messages from git diffs. Use when the user asks for help writing commits or reviewing staged changes."
+description: "[WHAT it does] + [WHEN to use it]. Example: Generate commit messages from git diffs. Use when the user asks for help writing commits or reviewing staged changes."
 ---
 
 # ${displayName}

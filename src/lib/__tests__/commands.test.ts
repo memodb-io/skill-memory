@@ -12,6 +12,7 @@ import { copyDir, rmDir } from "../fs-utils.js";
 import { getLocalSkillPath, getSkillsDir, ensureDir } from "../paths.js";
 import { parseLocalSkillName, validateSkillName } from "../local-skill-ref.js";
 import { generateSkillTemplate } from "../templates.js";
+import { updateSkillFrontmatterName } from "../skill-parser.js";
 
 const TEST_DIR = join(tmpdir(), "commands-tests", Date.now().toString());
 
@@ -187,6 +188,96 @@ describe("Command Integration Tests", () => {
       expect(await dirExists(oldPath)).toBe(false);
       expect(await dirExists(newPath)).toBe(true);
       expect(await fileExists(join(newPath, "SKILL.md"))).toBe(true);
+    });
+
+    it("should update frontmatter name after rename", async () => {
+      const { rename } = await import("fs/promises");
+
+      const oldName = "source-skill";
+      const newName = "target-skill";
+      const oldPath = getLocalSkillPath(oldName);
+      const newPath = getLocalSkillPath(newName);
+
+      // Create source skill with frontmatter
+      await mkdir(oldPath, { recursive: true });
+      await writeFile(
+        join(oldPath, "SKILL.md"),
+        "---\nname: source-skill\ndescription: A test skill\n---\n\n# Content"
+      );
+
+      // Rename directory
+      await rename(oldPath, newPath);
+
+      // Update frontmatter (simulating what rename command does)
+      await updateSkillFrontmatterName(newPath, newName);
+
+      // Verify frontmatter was updated
+      const content = await readFile(join(newPath, "SKILL.md"), "utf-8");
+      expect(content).toContain("name: target-skill");
+      expect(content).toContain("description: A test skill");
+    });
+  });
+
+  describe("copy command with frontmatter sync", () => {
+    it("should update frontmatter name in copied skill", async () => {
+      const sourceName = "original-skill";
+      const targetName = "copied-skill";
+      const sourcePath = getLocalSkillPath(sourceName);
+      const targetPath = getLocalSkillPath(targetName);
+
+      // Create source skill
+      await mkdir(sourcePath, { recursive: true });
+      await writeFile(
+        join(sourcePath, "SKILL.md"),
+        "---\nname: original-skill\ndescription: Original description\n---\n\n# Original"
+      );
+
+      // Copy directory
+      await copyDir(sourcePath, targetPath);
+
+      // Update frontmatter (simulating what copy command does)
+      await updateSkillFrontmatterName(targetPath, targetName);
+
+      // Verify source is unchanged
+      const sourceContent = await readFile(join(sourcePath, "SKILL.md"), "utf-8");
+      expect(sourceContent).toContain("name: original-skill");
+
+      // Verify target has updated name
+      const targetContent = await readFile(join(targetPath, "SKILL.md"), "utf-8");
+      expect(targetContent).toContain("name: copied-skill");
+      expect(targetContent).toContain("description: Original description");
+    });
+  });
+
+  describe("skill name validation", () => {
+    it("should reject names with spaces", () => {
+      expect(() => validateSkillName("my skill")).toThrow(
+        "only alphanumeric characters, dashes, and underscores are allowed"
+      );
+    });
+
+    it("should reject names with special characters", () => {
+      expect(() => validateSkillName("skill!@#$")).toThrow();
+      expect(() => validateSkillName("skill.name")).toThrow();
+      expect(() => validateSkillName("skill:name")).toThrow();
+    });
+
+    it("should accept valid names", () => {
+      expect(() => validateSkillName("my-skill")).not.toThrow();
+      expect(() => validateSkillName("my_skill")).not.toThrow();
+      expect(() => validateSkillName("MySkill123")).not.toThrow();
+      expect(() => validateSkillName("skill-name-123")).not.toThrow();
+    });
+
+    it("should reject path traversal attempts", () => {
+      expect(() => validateSkillName("../evil")).toThrow("path traversal");
+      expect(() => validateSkillName("skill/subdir")).toThrow("path traversal");
+      expect(() => validateSkillName("skill\\subdir")).toThrow("path traversal");
+    });
+
+    it("should reject reserved names", () => {
+      expect(() => validateSkillName(".")).toThrow("reserved name");
+      expect(() => validateSkillName("..")).toThrow("reserved name");
     });
   });
 });

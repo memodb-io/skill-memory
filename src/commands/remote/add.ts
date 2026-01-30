@@ -9,6 +9,8 @@ import { isGitInstalled, ensureRepo } from "../../lib/git.js";
 import { findSkillByName } from "../../lib/skill-finder.js";
 import { dirExists, copyDir } from "../../lib/fs-utils.js";
 import { ensureGitReady, commitSkillChange } from "../../lib/skill-git.js";
+import { validateSkillName } from "../../lib/local-skill-ref.js";
+import { updateSkillFrontmatterName } from "../../lib/skill-parser.js";
 import type { SkillReference, GithubRepoReference, LocalRepoReference } from "../../types.js";
 
 export async function addCommand(args: string[]): Promise<void> {
@@ -93,6 +95,25 @@ export async function addCommand(args: string[]): Promise<void> {
   // Determine target name
   const finalName = targetName || skillRef.skillName;
 
+  // Validate the final name
+  try {
+    validateSkillName(finalName);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (targetName) {
+      // --rename was provided but the value is invalid
+      console.error(`Error: ${message}`);
+      console.error(`The --rename value '${targetName}' is not a valid skill name.`);
+    } else {
+      // Source skill name is invalid, suggest --rename
+      console.error(`Error: ${message}`);
+      console.error(`The source skill name '${skillRef.skillName}' is not valid for local installation.`);
+      console.error(`Use --rename to specify a valid local name. Example:`);
+      console.error(`  skill-memory remote add ${args[0]} --rename my-skill-name`);
+    }
+    process.exit(1);
+  }
+
   // Check if skill already exists locally
   const localPath = getLocalSkillPath(finalName);
   if (await dirExists(localPath)) {
@@ -114,7 +135,9 @@ export async function addCommand(args: string[]): Promise<void> {
     process.exit(1);
   }
 
+  // Update frontmatter name if using --rename
   if (targetName) {
+    await updateSkillFrontmatterName(localPath, finalName);
     console.log(`Added skill: @${skillRef.skillName} as @${finalName}`);
   } else {
     console.log(`Added skill: @${skillRef.skillName}`);

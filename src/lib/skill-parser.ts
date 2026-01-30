@@ -2,11 +2,17 @@
  * Parse SKILL.md files and extract skill information
  */
 
-import { readdir, readFile } from "fs/promises";
+import { readdir, readFile, writeFile } from "fs/promises";
 import { join, dirname, relative } from "path";
-import { parse as parseYaml } from "yaml";
+import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 import type { SkillInfo, RepoReference } from "../types.js";
 import { buildFullRef } from "./repo-reference.js";
+import { fileExists } from "./fs-utils.js";
+
+/**
+ * Regex to match YAML frontmatter block (handles both CRLF and LF)
+ */
+const FRONTMATTER_REGEX = /^---\r?\n([\s\S]*?)\r?\n---/;
 
 /**
  * Recursively find all SKILL.md files in a directory
@@ -40,8 +46,7 @@ export async function findSkillFiles(dir: string): Promise<string[]> {
  * Extract YAML frontmatter from a markdown file
  */
 function extractFrontmatter(content: string): Record<string, unknown> | null {
-  const frontmatterRegex = /^---\r?\n([\s\S]*?)\r?\n---/;
-  const match = content.match(frontmatterRegex);
+  const match = content.match(FRONTMATTER_REGEX);
 
   if (!match) {
     return null;
@@ -151,4 +156,92 @@ export async function parseAllSkills(
   }
 
   return skills;
+}
+
+/**
+ * Update the name field in a SKILL.md frontmatter
+ * @param skillPath - The path to the skill directory (not the SKILL.md file)
+ * @param newName - The new name to set in the frontmatter
+ * @returns true if the update was successful, false otherwise
+ */
+export async function updateSkillFrontmatterName(
+  skillPath: string,
+  newName: string
+): Promise<boolean> {
+  const skillFilePath = join(skillPath, "SKILL.md");
+
+  // Check if SKILL.md exists
+  if (!(await fileExists(skillFilePath))) {
+    // No SKILL.md file, skip update
+    console.warn(`Warning: No SKILL.md found in ${skillPath}, skipping frontmatter update`);
+    return false;
+  }
+
+  let content: string;
+  try {
+    content = await readFile(skillFilePath, "utf-8");
+  } catch (error) {
+    console.warn(`Warning: Could not read SKILL.md: ${error}`);
+    return false;
+  }
+
+  // Detect line ending style (CRLF vs LF)
+  const lineEnding = content.includes("\r\n") ? "\r\n" : "\n";
+
+  const match = content.match(FRONTMATTER_REGEX);
+
+  let newContent: string;
+
+  if (match) {
+    // Has existing frontmatter - parse and update
+    const frontmatterText = match[1];
+    let frontmatter: Record<string, unknown>;
+
+    try {
+      frontmatter = parseYaml(frontmatterText) as Record<string, unknown>;
+      if (frontmatter === null || typeof frontmatter !== "object") {
+        frontmatter = {};
+      }
+    } catch {
+      // Malformed YAML - log warning and skip
+      console.warn(`Warning: Malformed YAML frontmatter in ${skillFilePath}, skipping update`);
+      return false;
+    }
+
+    // Update the name field
+    frontmatter.name = newName;
+
+    // Stringify back, preserving the order (name first for readability)
+    const orderedFrontmatter: Record<string, unknown> = { name: newName };
+    for (const [key, value] of Object.entries(frontmatter)) {
+      if (key !== "name") {
+        orderedFrontmatter[key] = value;
+      }
+    }
+
+    // Use detected line ending style for consistency
+    let newFrontmatterText = stringifyYaml(orderedFrontmatter).trimEnd();
+    if (lineEnding === "\r\n") {
+      newFrontmatterText = newFrontmatterText.replace(/\n/g, "\r\n");
+    }
+
+    // Replace frontmatter in content, preserving line ending style
+    newContent = content.replace(FRONTMATTER_REGEX, `---${lineEnding}${newFrontmatterText}${lineEnding}---`);
+  } else {
+    // No frontmatter - add one at the top
+    let newFrontmatterText = stringifyYaml({ name: newName }).trimEnd();
+    if (lineEnding === "\r\n") {
+      newFrontmatterText = newFrontmatterText.replace(/\n/g, "\r\n");
+    }
+    newContent = `---${lineEnding}${newFrontmatterText}${lineEnding}---${lineEnding}${lineEnding}${content}`;
+  }
+
+  // Write back to file
+  try {
+    await writeFile(skillFilePath, newContent, "utf-8");
+    return true;
+  } catch (error) {
+    console.warn(`Warning: Could not write SKILL.md: ${error}`);
+    return false;
+  }
 }
